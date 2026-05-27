@@ -877,7 +877,7 @@ def check_amp(model):
                 f"NaN losses or zero-mAP results, so AMP will be disabled during training."
             )
             return False
-    return True # my modiciation to force  channels and skip the bus.jpg image.
+    return True  # my modiciation to force  channels and skip the bus.jpg image.
 
     def amp_allclose(m, im):
         """All close FP32 vs AMP results."""
