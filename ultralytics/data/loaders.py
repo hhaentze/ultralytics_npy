@@ -444,7 +444,11 @@ class LoadImagesAndVideos:
             else:
                 # Handle image files
                 self.mode = "image"
-                im0 = imread(path, flags=self.cv2_flag)  # BGR
+                if path.endswith('.npy'):
+                    import numpy as np
+                    im0 = np.load(path)
+                else:
+                    im0 = imread(path, flags=self.cv2_flag)  # BGR
                 if im0 is None:
                     LOGGER.warning(f"Image Read Error {path}")
                 else:

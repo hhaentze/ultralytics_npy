@@ -12,6 +12,7 @@ import numpy as np
 import torch
 from PIL import Image
 from torch.nn import functional as F
+import os
 
 from ultralytics.data.utils import polygons2masks, polygons2masks_overlap
 from ultralytics.utils import LOGGER, IterableSimpleNamespace, colorstr
@@ -588,7 +589,7 @@ class Mosaic(BaseMixTransform):
 
             # Place img in img3
             if i == 0:  # center
-                img3 = np.full((s * 3, s * 3, img.shape[2]), 114, dtype=np.uint8)  # base image with 3 tiles
+                img3 = np.full((s * 3, s * 3, img.shape[2]), 0, dtype=np.uint8)  # base image with 3 tiles
                 h0, w0 = h, w
                 c = s, s, s + w, s + h  # xmin, ymin, xmax, ymax (base) coordinates
             elif i == 1:  # right
@@ -645,7 +646,7 @@ class Mosaic(BaseMixTransform):
 
             # Place img in img4
             if i == 0:  # top left
-                img4 = np.full((s * 2, s * 2, img.shape[2]), 114, dtype=np.uint8)  # base image with 4 tiles
+                img4 = np.full((s * 2, s * 2, img.shape[2]), 0, dtype=np.uint8)  # base image with 4 tiles
                 x1a, y1a, x2a, y2a = max(xc - w, 0), max(yc - h, 0), xc, yc  # xmin, ymin, xmax, ymax (large image)
                 x1b, y1b, x2b, y2b = w - (x2a - x1a), h - (y2a - y1a), w, h  # xmin, ymin, xmax, ymax (small image)
             elif i == 1:  # top right
@@ -703,7 +704,7 @@ class Mosaic(BaseMixTransform):
 
             # Place img in img9
             if i == 0:  # center
-                img9 = np.full((s * 3, s * 3, img.shape[2]), 114, dtype=np.uint8)  # base image with 4 tiles
+                img9 = np.full((s * 3, s * 3, img.shape[2]), 0, dtype=np.uint8)  # base image with 4 tiles
                 h0, w0 = h, w
                 c = s, s, s + w, s + h  # xmin, ymin, xmax, ymax (base) coordinates
             elif i == 1:  # top
@@ -1110,9 +1111,9 @@ class RandomPerspective:
         # Affine image
         if (border[0] != 0) or (border[1] != 0) or (M != np.eye(3)).any():  # image changed
             if self.perspective:
-                img = cv2.warpPerspective(img, M, dsize=self.size, borderValue=(114, 114, 114))
+                img = cv2.warpPerspective(img, M, dsize=self.size, borderValue=(0, 0, 0))
             else:  # affine
-                img = cv2.warpAffine(img, M[:2], dsize=self.size, borderValue=(114, 114, 114))
+                img = cv2.warpAffine(img, M[:2], dsize=self.size, borderValue=(0, 0, 0))
             if img.ndim == 2:
                 img = img[..., None]
         return img, M, s
@@ -1539,7 +1540,7 @@ class LetterBox:
         scaleup: bool = True,
         center: bool = True,
         stride: int = 32,
-        padding_value: int = 114,
+        padding_value: int = 0,
         interpolation: int = cv2.INTER_LINEAR,
     ):
         """Initialize LetterBox object for resizing and padding images.
@@ -1554,7 +1555,7 @@ class LetterBox:
             scaleup (bool): If True, allow scaling up. If False, only scale down.
             center (bool): If True, center the placed image. If False, place image in top-left corner.
             stride (int): Stride of the model (e.g., 32 for YOLOv5).
-            padding_value (int): Value for padding the image. Default is 114.
+            padding_value (int): Value for padding the image. Default is 0.
             interpolation (int): Interpolation method for resizing. Default is cv2.INTER_LINEAR.
         """
         self.new_shape = new_shape
@@ -1930,7 +1931,7 @@ class Albumentations:
             return labels
 
         im = labels["img"]
-        if im.shape[2] != 3:  # Only apply Albumentation on 3-channel images
+        if im.shape[2] not in {3, os.environ["YOLO_CHANNELS"]}:  # Support 3-channel RGB and 5-channel CT
             return labels
 
         if self.contains_spatial:
@@ -2678,7 +2679,7 @@ class ClassifyLetterBox:
         top, left = round((hs - h) / 2 - 0.1), round((ws - w) / 2 - 0.1)
 
         # Create padded image
-        im_out = np.full((hs, ws, 3), 114, dtype=im.dtype)
+        im_out = np.full((hs, ws, 3), 0, dtype=im.dtype)
         im_out[top : top + h, left : left + w] = cv2.resize(im, (w, h), interpolation=cv2.INTER_LINEAR)
         return im_out
 

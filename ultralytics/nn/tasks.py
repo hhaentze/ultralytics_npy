@@ -386,11 +386,20 @@ class DetectionModel(BaseModel):
             self.yaml["backbone"][0][2] = "nn.Identity"
 
         # Define model
+        if 'ch' in self.yaml:
+            ch = self.yaml['ch']
+        if 'channels' in self.yaml:
+            ch = self.yaml['channels']
         self.yaml["channels"] = ch  # save channels
+        
         if nc and nc != self.yaml["nc"]:
             LOGGER.info(f"Overriding model.yaml nc={self.yaml['nc']} with nc={nc}")
             self.yaml["nc"] = nc  # override YAML value
         self.model, self.save = parse_model(deepcopy(self.yaml), ch=ch, verbose=verbose)  # model, savelist
+
+        print(f"DEBUG Parse Model: parse_model received ch={ch}")
+        print()
+        
         self.names = {i: f"{i}" for i in range(self.yaml["nc"])}  # default names dict
         self.inplace = self.yaml.get("inplace", True)
 

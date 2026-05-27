@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING
 # Set ENV variables (place before imports)
 if not os.environ.get("OMP_NUM_THREADS"):
     os.environ["OMP_NUM_THREADS"] = "1"  # default for reduced CPU utilization during training
+if not os.environ.get("YOLO_CHANNELS"):
+    os.environ["YOLO_CHANNELS"] = 5
 
 from ultralytics.utils import ASSETS, SETTINGS
 from ultralytics.utils.checks import check_yolo as checks

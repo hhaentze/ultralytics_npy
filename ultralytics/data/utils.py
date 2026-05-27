@@ -52,6 +52,7 @@ IMG_FORMATS = {
     "tif",
     "tiff",
     "webp",
+    "npy",
 }
 VID_FORMATS = {"asf", "avi", "gif", "m4v", "mkv", "mov", "mp4", "mpeg", "mpg", "ts", "wmv", "webm"}  # videos
 FORMATS_HELP_MSG = f"Supported formats are:\nimages: {IMG_FORMATS}\nvideos: {VID_FORMATS}"
@@ -199,10 +200,22 @@ def verify_image_label(args: tuple) -> list:
     nm, nf, ne, nc, msg, segments, keypoints = 0, 0, 0, 0, "", [], None
     try:
         # Verify images
-        im = Image.open(im_file)
-        im.verify()  # PIL verify
-        shape = exif_size(im)  # image size
-        shape = (shape[1], shape[0])  # hw
+        if str(im_file).endswith('.npy'):
+            import numpy as np
+            arr = np.load(im_file, mmap_mode='r')
+            shape = (arr.shape[1], arr.shape[0])
+
+            # Create a fake Image object to fool YOLO's downstream asserts
+            class FakePIL:
+                def __init__(self):
+                    self.format = 'npy'
+            im = FakePIL()
+        else:
+            im = Image.open(im_file)
+            im.verify()  # PIL verify
+            shape = exif_size(im)  # image size
+            shape = (shape[1], shape[0])  # hw
+
         assert (shape[0] > 9) & (shape[1] > 9), f"image size {shape} <10 pixels"
         assert im.format.lower() in IMG_FORMATS, f"invalid image format {im.format}. {FORMATS_HELP_MSG}"
         if im.format.lower() in {"jpg", "jpeg"}:
@@ -259,6 +272,9 @@ def verify_image_label(args: tuple) -> list:
         lb = lb[:, :5]
         return im_file, lb, shape, segments, keypoints, nm, nf, ne, nc, msg
     except Exception as e:
+
+        print(f"\nCRASH on {im_file}: {e}") 
+        # nc, msg = 0, getattr(e, "message", str(e))
         nc = 1
         msg = f"{prefix}{im_file}: ignoring corrupt image/label: {e}"
         return [None, None, None, None, None, nm, nf, ne, nc, msg]

@@ -232,7 +232,10 @@ class BaseDataset(Dataset):
                     Path(fn).unlink(missing_ok=True)
                     im = imread(f, flags=self.cv2_flag)  # BGR
             else:  # read image
-                im = imread(f, flags=self.cv2_flag)  # BGR
+                if f.endswith('.npy'): # custom code to read npy files
+                    im = np.load(f)
+                else:
+                    im = imread(f, flags=self.cv2_flag)  # BGR
             if im is None:
                 raise FileNotFoundError(f"Image Not Found {f}")
 
