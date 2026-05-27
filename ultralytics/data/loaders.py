@@ -444,8 +444,9 @@ class LoadImagesAndVideos:
             else:
                 # Handle image files
                 self.mode = "image"
-                if path.endswith('.npy'):
+                if path.endswith(".npy"):
                     import numpy as np
+
                     im0 = np.load(path)
                 else:
                     im0 = imread(path, flags=self.cv2_flag)  # BGR

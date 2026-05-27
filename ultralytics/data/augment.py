@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import os
 import random
 from copy import deepcopy
 from typing import Any
@@ -12,7 +13,6 @@ import numpy as np
 import torch
 from PIL import Image
 from torch.nn import functional as F
-import os
 
 from ultralytics.data.utils import polygons2masks, polygons2masks_overlap
 from ultralytics.utils import LOGGER, IterableSimpleNamespace, colorstr
