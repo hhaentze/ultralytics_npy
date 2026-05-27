@@ -200,15 +200,17 @@ def verify_image_label(args: tuple) -> list:
     nm, nf, ne, nc, msg, segments, keypoints = 0, 0, 0, 0, "", [], None
     try:
         # Verify images
-        if str(im_file).endswith('.npy'):
+        if str(im_file).endswith(".npy"):
             import numpy as np
-            arr = np.load(im_file, mmap_mode='r')
+
+            arr = np.load(im_file, mmap_mode="r")
             shape = (arr.shape[1], arr.shape[0])
 
             # Create a fake Image object to fool YOLO's downstream asserts
             class FakePIL:
                 def __init__(self):
-                    self.format = 'npy'
+                    self.format = "npy"
+
             im = FakePIL()
         else:
             im = Image.open(im_file)
@@ -272,8 +274,7 @@ def verify_image_label(args: tuple) -> list:
         lb = lb[:, :5]
         return im_file, lb, shape, segments, keypoints, nm, nf, ne, nc, msg
     except Exception as e:
-
-        print(f"\nCRASH on {im_file}: {e}") 
+        print(f"\nCRASH on {im_file}: {e}")
         # nc, msg = 0, getattr(e, "message", str(e))
         nc = 1
         msg = f"{prefix}{im_file}: ignoring corrupt image/label: {e}"
