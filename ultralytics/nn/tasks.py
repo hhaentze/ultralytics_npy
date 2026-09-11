@@ -385,12 +385,8 @@ class DetectionModel(BaseModel):
             )
             self.yaml["backbone"][0][2] = "nn.Identity"
 
-        # Define model
-        if 'ch' in self.yaml:
-            ch = self.yaml['ch']
-        if 'channels' in self.yaml:
-            ch = self.yaml['channels']
         self.yaml["channels"] = ch  # save channels
+        self.yaml["ch"] = ch  # save channels
         
         if nc and nc != self.yaml["nc"]:
             LOGGER.info(f"Overriding model.yaml nc={self.yaml['nc']} with nc={nc}")
