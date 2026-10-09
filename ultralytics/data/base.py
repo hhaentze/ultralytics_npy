@@ -233,7 +233,7 @@ class BaseDataset(Dataset):
                     im = imread(f, flags=self.cv2_flag)  # BGR
             else:  # read image
                 if f.endswith('.npy'): # custom code to read npy files
-                    im = np.load(f)
+                    im = np.load(f).astype(np.float32, copy=False)
                 else:
                     im = imread(f, flags=self.cv2_flag)  # BGR
             if im is None:
