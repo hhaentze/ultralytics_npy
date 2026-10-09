@@ -446,7 +446,7 @@ class LoadImagesAndVideos:
                 self.mode = "image"
                 if path.endswith('.npy'):
                     import numpy as np
-                    im0 = np.load(path)
+                    im0 = np.load(path).astype(np.float32, copy=False)
                 else:
                     im0 = imread(path, flags=self.cv2_flag)  # BGR
                 if im0 is None:
