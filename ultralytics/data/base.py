@@ -226,7 +226,7 @@ class BaseDataset(Dataset):
         if im is None:  # not cached in RAM
             if fn.exists():  # load npy
                 try:
-                    im = np.load(fn)
+                    im = np.load(fn).astype(np.float32, copy=False)
                 except Exception as e:
                     LOGGER.warning(f"{self.prefix}Removing corrupt *.npy image file {fn} due to: {e}")
                     Path(fn).unlink(missing_ok=True)
